@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layerlift - Convert Any Image Into Editable Layers</title>
+    
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Import Google Font "Inter" --><link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Apply Inter font and a new dark theme */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #070912; /* Very dark blue/black */
+            color: #F1F5F9; /* slate-100 */
+            overflow-x: hidden;
+        }
+
+        /* Helper class for the gradient text */
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        /* Frosted glass / glassmorphism effect */
+        .glass-card {
+            background-color: rgba(22, 33, 56, 0.4); /* slate-800/40 */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(100, 116, 139, 0.3); /* slate-600/30 */
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(99, 230, 243, 0.5); /* cyan-300/50 */
+            transform: translateY(-8px);
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Styling for form input fields */
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            background-color: #ffffff;
+            color: #111827; /* gray-900 */
+            border: 1px solid #D1D5DB; /* border-gray-300 */
+            transition: all 0.3s;
+        }
+        .form-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.4); /* teal-400/40 */
+            border-color: #2DD4BF; /* teal-400 */
+        }
+
+        /* Hide elements by default for conditional logic */
+        .conditional-field {
+            display: none;
+            transition: all 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        /* Animation for the main CTA button */
+        .cta-glow {
+            box-shadow: 0 0 20px rgba(45, 212, 191, 0.4);
+            animation: pulse-glow 2.5s infinite;
+        }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 20px rgba(45, 212, 191, 0.4); }
+            50% { box-shadow: 0 0 35px rgba(45, 212, 191, 0.8); }
+            100% { box-shadow: 0 0 20px rgba(45, 212, 191, 0.4); }
+        }
+
+        /* Specific styles for the "editable layers" visual */
+        .editable-image-container {
+            position: relative;
+            display: inline-block; /* To contain the absolute overlay */
+        }
+        .editable-image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.2); /* Slight darkening */
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        .layerlift-logo-overlay {
+            font-family: 'Inter', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.3); /* Semi-transparent white */
+            pointer-events: none; /* Allow clicks to pass through */
+            user-select: none;
+        }
+        .layerlift-logo-overlay span {
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(to right, rgba(99,230,243,0.5), rgba(45,212,191,0.5)); /* Cyan to Teal */
+        }
+
+        /* Simple selection boxes for the editable visual */
+        .selection-box {
+            position: absolute;
+            border: 2px dashed rgba(99, 230, 243, 0.7); /* Cyan dashed border */
+            background-color: rgba(99, 230, 243, 0.1); /* Light fill */
+            pointer-events: none;
+            border-radius: 4px;
+        }
+
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header / Navigation --><nav class="container mx-auto px-6 py-5 flex justify-between items-center sticky top-0 z-50 bg-[#070912]/70 backdrop-blur-md border-b border-slate-700/50">
+        <!-- Logo --><div class="text-3xl font-extrabold text-white">
+            Layer<span class="text-gradient bg-gradient-to-r from-teal-300 to-cyan-400">lift</span>
+        </div>
+        
+        <!-- CTA Button --><a href="#cta-form" class="bg-teal-400 text-slate-900 px-5 py-2.5 rounded-lg font-bold text-sm shadow-lg hover:bg-teal-300 transition-all transform hover:scale-105 hidden md:inline-block">
+            Get Early Access
+        </a>
+    </nav>
+
+    <!-- Hero Section --><section class="text-center pt-20 pb-24 md:pt-28 md:pb-32 px-6 relative overflow-hidden">
+        <!-- Background Glow Effect --><div class="absolute inset-0 -z-10 overflow-hidden flex items-center justify-center">
+            <div class="absolute w-[800px] h-[800px] bg-gradient-to-tr from-cyan-900/50 to-purple-900/30 blur-3xl opacity-30 rounded-full -top-1/2 left-1/2 -translate-x-1/2"></div>
+            <div class="absolute w-[600px] h-[600px] bg-teal-800/40 blur-3xl opacity-40 rounded-full -bottom-1/2 left-1/3"></div>
+        </div>
+
+        <div class="container mx-auto z-10 relative">
+            <!-- Headline --><h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white leading-tight max-w-4xl mx-auto">
+                Convert any image into
+                <span class="text-gradient bg-gradient-to-r from-teal-300 via-cyan-400 to-purple-400">editable layers</span>
+                in seconds.
+            </h1>
+            
+            <!-- Subheadline --><p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mt-6">
+                Layerlift's AI deconstructs any image into its core components—people, backgrounds, text, and objects—so you can edit or re-imagine with zero manual work.
+            </p>
+            
+            <!-- Main CTA --><a href="#cta-form" class="bg-teal-400 text-slate-900 px-7 py-3 md:px-8 md:py-4 rounded-lg font-bold text-lg mt-10 inline-block hover:bg-teal-300 transition-all transform hover:scale-105 shadow-2xl cta-glow">
+                Get Early Access
+            </a>
+
+            <!-- Visual Idea: Before & After --><div class="mt-16 md:mt-20 max-w-5xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    
+                    <!-- Before Image --><div class="text-center">
+                        <h3 class="text-xl font-bold text-white mb-4">Your Flat Image</h3>
+                        <img 
+                            src="mural.jpg" 
+                            alt="A vibrant street art mural with multiple elements" 
+                            class="rounded-xl shadow-2xl border border-slate-700 w-full h-full object-cover"
+                        >
+                    </div>
+
+                    <!-- After: Layers Panel --><div class="text-center">
+                        <h3 class="text-xl font-bold text-white mb-4">With Editable Layers</h3>
+                        <div class="glass-card rounded-xl p-6 text-left shadow-2xl flex flex-col h-full">
+                            <!-- Image with overlays --><div class="editable-image-container w-full aspect-video mb-6 rounded-xl overflow-hidden shadow-lg border border-teal-500/50">
+                                <img 
+                                    src="mural.jpg" 
+                                    alt="A vibrant street art mural with multiple elements, now editable" 
+                                    class="w-full h-full object-cover"
+                                >
+                                <!-- Overlay for selection boxes and Layerlift logo --><div class="editable-image-overlay">
+                                    <div class="layerlift-logo-overlay">Layer<span>lift</span></div>
+                                    <!-- Example selection boxes - position these relative to the image content --><div class="selection-box" style="top: 15%; left: 10%; width: 30%; height: 60%;"></div> <!-- Main figure --><div class="selection-box" style="top: 5%; left: 45%; width: 25%; height: 20%;"></div> <!-- Text/graffiti --><div class="selection-box" style="top: 60%; left: 60%; width: 20%; height: 30%;"></div> <!-- Another object --></div>
+                            </div>
+
+                            <h4 class="text-lg font-semibold text-white mb-4">Separated Layers</h4>
+                            <ul class="flex flex-col gap-3">
+                                <!-- Layer 1 --><li class="bg-slate-800/50 p-3 rounded-lg flex items-center gap-3 ring-1 ring-slate-700">
+                                    <svg class="w-5 h-5 text-cyan-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                    <span class="text-slate-100 font-medium">Figure (Person-like object)</span>
+                                </li>
+                                <!-- Layer 2 --><li class="bg-slate-800/50 p-3 rounded-lg flex items-center gap-3 ring-1 ring-slate-700">
+                                    <svg class="w-5 h-5 text-cyan-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+                                    <span class="text-slate-100 font-medium">Graffiti Text Elements</span>
+                                </li>
+                                <!-- Layer 3 --><li class="bg-slate-800/50 p-3 rounded-lg flex items-center gap-3 ring-1 ring-slate-700">
+                                    <svg class="w-5 h-5 text-cyan-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+                                    <span class="text-slate-100 font-medium">Abstract Shapes</span>
+                                </li>
+                                <!-- Layer 4 --><li class="bg-slate-800/50 p-3 rounded-lg flex items-center gap-3 ring-1 ring-slate-700">
+                                    <svg class="w-5 h-5 text-cyan-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6C2.754 12 2.25 11.496 2.25 10.875V7.125z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12.75 6h.008v.008h-.008V6zM14.25 6h.008v.008h-.008V6zM15.75 6h.008v.008h-.008V6zM17.25 6h.008v.008h-.008V6zM18.75 6h.008v.008h-.008V6zM12.75 7.5h.008v.008h-.008V7.5zM14.25 7.5h.008v.008h-.008V7.5zM15.75 7.5h.008v.008h-.008V7.5zM17.25 7.5h.008v.008h-.008V7.5zM18.75 7.5h.008v.008h-.008V7.5zM12.75 9h.008v.008h-.008V9zM14.25 9h.008v.008h-.008V9zM15.75 9h.008v.008h-.008V9zM17.25 9h.008v.008h-.008V9zM18.75 9h.008v.008h-.008V9zM12.75 10.5h.008v.008h-.008v-." /></svg>
+                                    <span class="text-slate-100 font-medium">Background Wall</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- How It Works Section --><section class="py-20 md:py-28 px-6">
+        <div class="container mx-auto max-w-5xl">
+            <!-- Section Header --><h2 class="text-3xl md:text-4xl font-extrabold text-white text-center mb-16">
+                So simple, it feels like magic.
+            </h2>
+            
+            <!-- Steps Grid --><div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                <!-- Step 1 --><div class="glass-card p-8 rounded-xl text-center">
+                    <div class="w-16 h-16 bg-gradient-to-br from-teal-500/20 to-teal-500/10 text-teal-300 rounded-xl flex items-center justify-center mb-6 ring-1 ring-teal-500/30 mx-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">1. Upload Image</h3>
+                    <p class="text-slate-300">Drag and drop any file. JPG, PNG, WEBP—our AI handles it all.</p>
+                </div>
+
+                <!-- Step 2 --><div class="glass-card p-8 rounded-xl text-center">
+                    <div class="w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-cyan-500/10 text-cyan-300 rounded-xl flex items-center justify-center mb-6 ring-1 ring-cyan-500/30 mx-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.036a3.375 3.375 0 002.456 2.455L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" /></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">2. AI Processing</h3>
+                    <p class="text-slate-300">In seconds, our model analyzes and separates every distinct element.</p>
+                </div>
+
+                <!-- Step 3 --><div class="glass-card p-8 rounded-xl text-center">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-purple-500/10 text-purple-300 rounded-xl flex items-center justify-center mb-6 ring-1 ring-purple-500/30 mx-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">3. Download Layers</h3>
+                    <p class="text-slate-300">Export as a layered PSD, FIG file, or get transparent PNGs for each layer.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases Section --><section class="py-20 md:py-28 px-6 bg-[#0A0D17]">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-white text-center mb-16">
+                Supercharge Your Workflow
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Use Case 1: Marketers --><div class="flex flex-col">
+                    <img src="https://placehold.co/600x400/1E293B/94A3B8?text=Re-mixed+Product+Ad" alt="E-commerce ad being remixed" class="rounded-t-xl shadow-lg w-full h-48 object-cover">
+                    <div class="glass-card p-6 rounded-b-xl flex-grow">
+                        <h3 class="text-xl font-bold text-white mb-2">For Marketers</h3>
+                        <p class="text-slate-300 text-sm">Isolate your product, change the background, and test 10 new ad creatives in minutes, not hours.</p>
+                    </div>
+                </div>
+                <!-- Use Case 2: Designers --><div class="flex flex-col">
+                    <img src="https://placehold.co/600x400/1E293B/94A3B8?text=Dynamic+Poster+Design" alt="Creative design poster" class="rounded-t-xl shadow-lg w-full h-48 object-cover">
+                    <div class="glass-card p-6 rounded-b-xl flex-grow">
+                        <h3 class="text-xl font-bold text-white mb-2">For Designers</h3>
+                        <p class="text-slate-300 text-sm">Grab elements from any image to build moodboards, collages, and complex compositions, faster.</p>
+                    </div>
+                </div>
+                <!-- Use Case 3: Creators --><div class="flex flex-col">
+                    <img src="https://placehold.co/600x400/1E293B/94A3B8?text=Viral+Thumbnail+Creation" alt="Social media thumbnail" class="rounded-t-xl shadow-lg w-full h-48 object-cover">
+                    <div class="glass-card p-6 rounded-b-xl flex-grow">
+                        <h3 class="text-xl font-bold text-white mb-2">For Creators</h3>
+                        <p class="text-slate-300 text-sm">Create eye-catching YouTube thumbnails and social media posts by easily layering subjects and text.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof / CTA Section --><section id="cta-form" class="py-20 md:py-28 px-6 bg-gradient-to-t from-[#070912] via-[#070912] to-teal-900/40">
+        <div class="container mx-auto max-w-xl text-center">
+            
+            <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-6">
+                Unlock Your Creativity.
+            </h2>
+            <p class="text-2xl font-medium text-slate-200 mb-10">
+                Join the waitlist and be the first to experience Layerlift.
+            </p>
+            
+            <!-- Email Capture Form --><div id="form-container" class="max-w-lg mx-auto text-left">
+                
+                <!-- "Thank You" Message --><div id="form-success-message" class="hidden text-center glass-card border-teal-500 p-10">
+                    <svg class="w-16 h-16 text-teal-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h3 class="text-2xl font-bold text-white mb-2">Thank You!</h3>
+                    <p class="text-slate-300">You're on the list. We'll be in touch soon.</p>
+                </div>
+
+                <!-- Error Message --><div id="form-error-message" class="hidden text-center glass-card border-red-500 p-10">
+                    <h3 class="text-2xl font-bold text-white mb-2">Oops!</h3>
+                    <p class="text-slate-300">Something went wrong. Please try again later.</p>
+                </div>
+
+                <!-- The Form --><form 
+                    id="early-access-form"
+                    action="YOUR_GETFORM_ENDPOINT_URL" <!--- !!! IMPORTANT: REPLACE THIS !!! --->method="POST"
+                    class="flex flex-col gap-4"
+                >
+                    <!-- Email Field --><div>
+                        <label for="email" class="block text-sm font-medium text-slate-300 mb-2">Email Address*</label>
+                        <input 
+                            type="email" 
+                            name="email"
+                            id="email"
+                            placeholder="you@company.com" 
+                            class="form-input"
+                            required
+                        >
+                    </div>
+                
+                    <!-- Contact Number Field --><div>
+                        <label for="phone" class="block text-sm font-medium text-slate-300 mb-2">Contact Number</label>
+                        <input
+                            type="tel" 
+                            name="phone"
+                            id="phone"
+                            placeholder="+1 (555) 123-4567" 
+                            class="form-input"
+                        >
+                    </div>
+
+                    <!-- Use Case Field --><div>
+                        <label for="use_case" class="block text-sm font-medium text-slate-300 mb-2">Primary Use Case*</label>
+                        <select 
+                            name="use_case" 
+                            id="use_case" 
+                            class="form-input appearance-none" 
+                            required
+                        >
+                            <option value="" disabled selected>Select an option...</option>
+                            <option value="personal">Personal Use</option>
+                            <option value="work">Work / Company</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Conditional: Company Name --><div id="company_field" class="conditional-field">
+                        <label for="company_name" class="block text-sm font-medium text-slate-300 mb-2">Company Name*</Llabel>
+                        <input 
+                            type="text" 
+                            name="company_name"
+                            id="company_name"
+                            placeholder="Your Company Inc." 
+                            class="form-input"
+                        >
+                    </div>
+
+                    <!-- Conditional: Other Specify --><div id="other_field" class="conditional-field">
+                        <label for="other_specify" class="block text-sm font-medium text-slate-300 mb-2">Please Specify*</label>
+                        <input 
+                            type="text" 
+                            name="other_specify"
+                            id="other_specify"
+                            placeholder="e.g., Agency, Freelancer" 
+                            class="form-input"
+                        >
+                    </div>
+                        
+                    <!-- Submit Button --><button 
+                        id="submit-button"
+                        type="submit" 
+                        class="bg-teal-400 text-slate-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-teal-300 transition-all transform hover:scale-105 shadow-lg whitespace-nowrap mt-4"
+                    >
+                        Get Early Access
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Spam disclaimer --><p class="text-sm text-slate-400 mt-5">No spam, just early access and updates.</p>
+        </div>
+    </section>
+
+    <!-- Footer --><footer class="text-center py-10 border-t border-slate-700/50">
+        <p class="text-slate-500">&copy; 2025 Layerlift. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript for Form Logic --><script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Conditional Field Logic ---
+            const useCaseSelect = document.getElementById('use_case');
+            const companyField = document.getElementById('company_field');
+            const otherField = document.getElementById('other_field');
+            const companyInput = document.getElementById('company_name');
+            const otherInput = document.getElementById('other_specify');
+
+            function toggleFields() {
+                const selectedValue = useCaseSelect.value;
+                hideField(companyField, companyInput);
+                hideField(otherField, otherInput);
+                if (selectedValue === 'work') {
+                    showField(companyField, companyInput);
+                } else if (selectedValue === 'other') {
+                    showField(otherField, otherInput);
+                }
+            }
+
+            function showField(wrapper, input) {
+                wrapper.style.display = 'block';
+                setTimeout(() => {
+                    wrapper.style.maxHeight = '100px';
+                    wrapper.style.opacity = '1';
+                }, 10);
+                input.setAttribute('required', 'required');
+            }
+
+            function hideField(wrapper, input) {
+                wrapper.style.maxHeight = '0';
+                wrapper.style.opacity = '0';
+                setTimeout(() => {
+                    if (wrapper.style.opacity === '0') {
+                        wrapper.style.display = 'none';
+                    }
+                }, 300);
+                input.removeAttribute('required');
+            }
+            useCaseSelect.addEventListener('change', toggleFields);
+
+            // --- Form Submission Logic ---
+            const form = document.getElementById('early-access-form');
+            const successMessage = document.getElementById('form-success-message');
+            const errorMessage = document.getElementById('form-error-message');
+            const submitButton = document.getElementById('submit-button');
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(form);
+                const action = form.getAttribute('action');
+
+                // Check for placeholder URL
+                if (action.includes('YOUR_GETFORM_ENDPOINT_URL')) {
+                    alert('Form Error: Please configure the form endpoint URL in the HTML.');
+                    return;
+                }
+
+                submitButton.disabled = true;
+                submitButton.textContent = 'Submitting...';
+
+                fetch(action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        form.style.display = 'none';
+                        successMessage.style.display = 'block';
+                    } else {
+                        throw new Error('Form submission failed');
+                    }
+                })
+                .catch(error => {
+                    form.style.display = 'none';
+                    errorMessage.style.display = 'block';
+                    console.error('Form Error:', error);
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
+
+
