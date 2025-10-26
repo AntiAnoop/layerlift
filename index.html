@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Layerlift - Convert Any Image Into Editable Layers</title>
     
-    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Import Google Font "Inter" --><link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- Choices.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+
+    <!-- Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     
@@ -42,7 +47,7 @@
         }
 
         /* Styling for form input fields */
-        .form-input {
+        .form-input, .form-select {
             width: 100%;
             padding: 0.75rem 1rem;
             border-radius: 0.5rem;
@@ -51,11 +56,68 @@
             border: 1px solid #D1D5DB; /* border-gray-300 */
             transition: all 0.3s;
         }
-        .form-input:focus {
+        .form-input:focus, .form-select:focus {
             outline: none;
             box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.4); /* teal-400/40 */
             border-color: #2DD4BF; /* teal-400 */
         }
+        
+        .form-select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+
+        /* --- Choices.js Custom Styling --- */
+        .choices {
+            width: 100%;
+        }
+        .choices__inner {
+            width: 100%;
+            padding: 0.6rem 1rem; /* Slightly less vertical padding */
+            border-radius: 0.5rem;
+            background-color: #ffffff;
+            color: #111827;
+            border: 1px solid #D1D5DB;
+            transition: all 0.3s;
+            font-size: 1rem;
+            min-height: auto;
+        }
+        .choices[data-type*="select-one"].is-open .choices__inner {
+            border-radius: 0.5rem 0.5rem 0 0;
+            border-color: #2DD4BF;
+        }
+        .choices.is-focused .choices__inner {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.4);
+            border-color: #2DD4BF;
+        }
+        .choices__list--dropdown {
+            border-radius: 0 0 0.5rem 0.5rem;
+            border: 1px solid #2DD4BF;
+            border-top: none;
+            background-color: #ffffff;
+            color: #111827;
+        }
+        .choices__list--dropdown .choices__item--selectable.is-highlighted {
+            background-color: #f0fdfa; /* teal-50 */
+            color: #111827;
+        }
+        .choices__item {
+            font-size: 0.95rem;
+            padding: 0.5rem 1rem;
+        }
+        .choices__input {
+            font-size: 1rem;
+            background-color: #ffffff;
+            color: #111827;
+        }
+        /* --- End Choices.js Styling --- */
+
 
         /* Hide elements by default for conditional logic */
         .conditional-field {
@@ -122,78 +184,101 @@
 </head>
 <body class="antialiased">
 
-    <!-- Header / Navigation --><nav class="container mx-auto px-6 py-5 flex justify-between items-center sticky top-0 z-50 bg-[#070912]/70 backdrop-blur-md border-b border-slate-700/50">
-        <!-- Logo --><div class="text-3xl font-extrabold text-white">
+    <!-- Header / Navigation -->
+    <nav class="container mx-auto px-6 py-5 flex justify-between items-center sticky top-0 z-50 bg-[#070912]/70 backdrop-blur-md border-b border-slate-700/50">
+        <!-- Logo -->
+        <div class="text-3xl font-extrabold text-white">
             Layer<span class="text-gradient bg-gradient-to-r from-teal-300 to-cyan-400">lift</span>
         </div>
         
-        <!-- CTA Button --><a href="#cta-form" class="bg-teal-400 text-slate-900 px-5 py-2.5 rounded-lg font-bold text-sm shadow-lg hover:bg-teal-300 transition-all transform hover:scale-105 hidden md:inline-block">
+        <!-- CTA Button -->
+        <a href="#cta-form" class="bg-teal-400 text-slate-900 px-5 py-2.5 rounded-lg font-bold text-sm shadow-lg hover:bg-teal-300 transition-all transform hover:scale-105 hidden md:inline-block">
             Get Early Access
         </a>
     </nav>
 
-    <!-- Hero Section --><section class="text-center pt-20 pb-24 md:pt-28 md:pb-32 px-6 relative overflow-hidden">
-        <!-- Background Glow Effect --><div class="absolute inset-0 -z-10 overflow-hidden flex items-center justify-center">
+    <!-- Hero Section -->
+    <section class="text-center pt-20 pb-24 md:pt-28 md:pb-32 px-6 relative overflow-hidden">
+        <!-- Background Gradients -->
+        <div class="absolute inset-0 -z-10 overflow-hidden flex items-center justify-center">
             <div class="absolute w-[800px] h-[800px] bg-gradient-to-tr from-cyan-900/50 to-purple-900/30 blur-3xl opacity-30 rounded-full -top-1/2 left-1/2 -translate-x-1/2"></div>
             <div class="absolute w-[600px] h-[600px] bg-teal-800/40 blur-3xl opacity-40 rounded-full -bottom-1/2 left-1/3"></div>
         </div>
 
         <div class="container mx-auto z-10 relative">
-            <!-- Headline --><h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white leading-tight max-w-4xl mx-auto">
+            <!-- Headline -->
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white leading-tight max-w-4xl mx-auto">
                 Convert any image into
                 <span class="text-gradient bg-gradient-to-r from-teal-300 via-cyan-400 to-purple-400">editable layers</span>
                 in seconds.
             </h1>
             
-            <!-- Subheadline --><p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mt-6">
+            <!-- Subheadline -->
+            <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mt-6">
                 Layerlift's AI deconstructs any image into its core components—people, backgrounds, text, and objects—so you can edit or re-imagine with zero manual work.
             </p>
             
-            <!-- Main CTA --><a href="#cta-form" class="bg-teal-400 text-slate-900 px-7 py-3 md:px-8 md:py-4 rounded-lg font-bold text-lg mt-10 inline-block hover:bg-teal-300 transition-all transform hover:scale-105 shadow-2xl cta-glow">
+            <!-- CTA Button -->
+            <a href="#cta-form" class="bg-teal-400 text-slate-900 px-7 py-3 md:px-8 md:py-4 rounded-lg font-bold text-lg mt-10 inline-block hover:bg-teal-300 transition-all transform hover:scale-105 shadow-2xl cta-glow">
                 Get Early Access
             </a>
 
-            <!-- Visual Idea: Before & After --><div class="mt-16 md:mt-20 max-w-5xl mx-auto">
+            <!-- Hero Visual -->
+            <div class="mt-16 md:mt-20 max-w-5xl mx-auto">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                     
-                    <!-- Before Image --><div class="text-center">
+                    <!-- Before Image -->
+                    <div class="text-center">
                         <h3 class="text-xl font-bold text-white mb-4">Your Flat Image</h3>
                         <img 
                             src="mural.jpg" 
                             alt="A vibrant street art mural with multiple elements" 
                             class="rounded-xl shadow-2xl border border-slate-700 w-full h-full object-cover"
+                            onerror="this.alt='Image not found. Please download mural.jpg to this folder.'; this.src='https://placehold.co/600x450/1E293B/94A3B8?text=Image+Not+Found';"
                         >
                     </div>
 
-                    <!-- After: Layers Panel --><div class="text-center">
+                    <!-- After: Layers Panel -->
+                    <div class="text-center">
                         <h3 class="text-xl font-bold text-white mb-4">With Editable Layers</h3>
                         <div class="glass-card rounded-xl p-6 text-left shadow-2xl flex flex-col h-full">
-                            <!-- Image with overlays --><div class="editable-image-container w-full aspect-video mb-6 rounded-xl overflow-hidden shadow-lg border border-teal-500/50">
+                            <!-- Image with overlays -->
+                            <div class="editable-image-container w-full aspect-video mb-6 rounded-xl overflow-hidden shadow-lg border border-teal-500/50">
                                 <img 
                                     src="mural.jpg" 
                                     alt="A vibrant street art mural with multiple elements, now editable" 
                                     class="w-full h-full object-cover"
+                                    onerror="this.src='https://placehold.co/600x450/1E293B/94A3B8?text=Image+Not+Found';"
                                 >
-                                <!-- Overlay for selection boxes and Layerlift logo --><div class="editable-image-overlay">
+                                <!-- Overlay for selection boxes and Layerlift logo -->
+                                <div class="editable-image-overlay">
                                     <div class="layerlift-logo-overlay">Layer<span>lift</span></div>
-                                    <!-- Example selection boxes - position these relative to the image content --><div class="selection-box" style="top: 15%; left: 10%; width: 30%; height: 60%;"></div> <!-- Main figure --><div class="selection-box" style="top: 5%; left: 45%; width: 25%; height: 20%;"></div> <!-- Text/graffiti --><div class="selection-box" style="top: 60%; left: 60%; width: 20%; height: 30%;"></div> <!-- Another object --></div>
+                                    <!-- Selection Boxes -->
+                                    <div class="selection-box" style="top: 15%; left: 10%; width: 30%; height: 60%;"></div> <!-- Main figure -->
+                                    <div class="selection-box" style="top: 5%; left: 45%; width: 25%; height: 20%;"></div> <!-- Text element -->
+                                    <div class="selection-box" style="top: 60%; left: 60%; width: 20%; height: 30%;"></div> <!-- Shape element -->
+                                </div>
                             </div>
 
                             <h4 class="text-lg font-semibold text-white mb-4">Separated Layers</h4>
                             <ul class="flex flex-col gap-3">
-                                <!-- Layer 1 --><li class="bg-slate-800/50 p-3 rounded-lg flex items-center gap-3 ring-1 ring-slate-700">
+                                <!-- Layer 1 -->
+                                <li class="bg-slate-800/50 p-3 rounded-lg flex items-center gap-3 ring-1 ring-slate-700">
                                     <svg class="w-5 h-5 text-cyan-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                     <span class="text-slate-100 font-medium">Figure (Person-like object)</span>
                                 </li>
-                                <!-- Layer 2 --><li class="bg-slate-800/50 p-3 rounded-lg flex items-center gap-3 ring-1 ring-slate-700">
+                                <!-- Layer 2 -->
+                                <li class="bg-slate-800/50 p-3 rounded-lg flex items-center gap-3 ring-1 ring-slate-700">
                                     <svg class="w-5 h-5 text-cyan-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
                                     <span class="text-slate-100 font-medium">Graffiti Text Elements</span>
                                 </li>
-                                <!-- Layer 3 --><li class="bg-slate-800/50 p-3 rounded-lg flex items-center gap-3 ring-1 ring-slate-700">
+                                <!-- Layer 3 -->
+                                <li class="bg-slate-800/50 p-3 rounded-lg flex items-center gap-3 ring-1 ring-slate-700">
                                     <svg class="w-5 h-5 text-cyan-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
                                     <span class="text-slate-100 font-medium">Abstract Shapes</span>
                                 </li>
-                                <!-- Layer 4 --><li class="bg-slate-800/50 p-3 rounded-lg flex items-center gap-3 ring-1 ring-slate-700">
+                                <!-- Layer 4 -->
+                                <li class="bg-slate-800/50 p-3 rounded-lg flex items-center gap-3 ring-1 ring-slate-700">
                                     <svg class="w-5 h-5 text-cyan-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6C2.754 12 2.25 11.496 2.25 10.875V7.125z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12.75 6h.008v.008h-.008V6zM14.25 6h.008v.008h-.008V6zM15.75 6h.008v.008h-.008V6zM17.25 6h.008v.008h-.008V6zM18.75 6h.008v.008h-.008V6zM12.75 7.5h.008v.008h-.008V7.5zM14.25 7.5h.008v.008h-.008V7.5zM15.75 7.5h.008v.008h-.008V7.5zM17.25 7.5h.008v.008h-.008V7.5zM18.75 7.5h.008v.008h-.008V7.5zM12.75 9h.008v.008h-.008V9zM14.25 9h.008v.008h-.008V9zM15.75 9h.008v.008h-.008V9zM17.25 9h.008v.008h-.008V9zM18.75 9h.008v.008h-.008V9zM12.75 10.5h.008v.008h-.008v-." /></svg>
                                     <span class="text-slate-100 font-medium">Background Wall</span>
                                 </li>
@@ -207,15 +292,19 @@
         </div>
     </section>
 
-    <!-- How It Works Section --><section class="py-20 md:py-28 px-6">
+    <!-- How It Works Section -->
+    <section class="py-20 md:py-28 px-6">
         <div class="container mx-auto max-w-5xl">
-            <!-- Section Header --><h2 class="text-3xl md:text-4xl font-extrabold text-white text-center mb-16">
+            <!-- Section Heading -->
+            <h2 class="text-3xl md:text-4xl font-extrabold text-white text-center mb-16">
                 So simple, it feels like magic.
             </h2>
             
-            <!-- Steps Grid --><div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- 3-Step Process -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 
-                <!-- Step 1 --><div class="glass-card p-8 rounded-xl text-center">
+                <!-- Step 1 -->
+                <div class="glass-card p-8 rounded-xl text-center">
                     <div class="w-16 h-16 bg-gradient-to-br from-teal-500/20 to-teal-500/10 text-teal-300 rounded-xl flex items-center justify-center mb-6 ring-1 ring-teal-500/30 mx-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
                     </div>
@@ -223,7 +312,8 @@
                     <p class="text-slate-300">Drag and drop any file. JPG, PNG, WEBP—our AI handles it all.</p>
                 </div>
 
-                <!-- Step 2 --><div class="glass-card p-8 rounded-xl text-center">
+                <!-- Step 2 -->
+                <div class="glass-card p-8 rounded-xl text-center">
                     <div class="w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-cyan-500/10 text-cyan-300 rounded-xl flex items-center justify-center mb-6 ring-1 ring-cyan-500/30 mx-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.036a3.375 3.375 0 002.456 2.455L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" /></svg>
                     </div>
@@ -231,7 +321,8 @@
                     <p class="text-slate-300">In seconds, our model analyzes and separates every distinct element.</p>
                 </div>
 
-                <!-- Step 3 --><div class="glass-card p-8 rounded-xl text-center">
+                <!-- Step 3 -->
+                <div class="glass-card p-8 rounded-xl text-center">
                     <div class="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-purple-500/10 text-purple-300 rounded-xl flex items-center justify-center mb-6 ring-1 ring-purple-500/30 mx-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                     </div>
@@ -242,27 +333,31 @@
         </div>
     </section>
 
-    <!-- Use Cases Section --><section class="py-20 md:py-28 px-6 bg-[#0A0D17]">
+    <!-- Use Cases Section -->
+    <section class="py-20 md:py-28 px-6 bg-[#0A0D17]">
         <div class="container mx-auto max-w-6xl">
             <h2 class="text-3xl md:text-4xl font-extrabold text-white text-center mb-16">
                 Supercharge Your Workflow
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Use Case 1: Marketers --><div class="flex flex-col">
+                <!-- Use Case 1: Marketers -->
+                <div class="flex flex-col">
                     <img src="https://placehold.co/600x400/1E293B/94A3B8?text=Re-mixed+Product+Ad" alt="E-commerce ad being remixed" class="rounded-t-xl shadow-lg w-full h-48 object-cover">
                     <div class="glass-card p-6 rounded-b-xl flex-grow">
                         <h3 class="text-xl font-bold text-white mb-2">For Marketers</h3>
                         <p class="text-slate-300 text-sm">Isolate your product, change the background, and test 10 new ad creatives in minutes, not hours.</p>
                     </div>
                 </div>
-                <!-- Use Case 2: Designers --><div class="flex flex-col">
+                <!-- Use Case 2: Designers -->
+                <div class="flex flex-col">
                     <img src="https://placehold.co/600x400/1E293B/94A3B8?text=Dynamic+Poster+Design" alt="Creative design poster" class="rounded-t-xl shadow-lg w-full h-48 object-cover">
                     <div class="glass-card p-6 rounded-b-xl flex-grow">
                         <h3 class="text-xl font-bold text-white mb-2">For Designers</h3>
                         <p class="text-slate-300 text-sm">Grab elements from any image to build moodboards, collages, and complex compositions, faster.</p>
                     </div>
                 </div>
-                <!-- Use Case 3: Creators --><div class="flex flex-col">
+                <!-- Use Case 3: Creators -->
+                <div class="flex flex-col">
                     <img src="https://placehold.co/600x400/1E293B/94A3B8?text=Viral+Thumbnail+Creation" alt="Social media thumbnail" class="rounded-t-xl shadow-lg w-full h-48 object-cover">
                     <div class="glass-card p-6 rounded-b-xl flex-grow">
                         <h3 class="text-xl font-bold text-white mb-2">For Creators</h3>
@@ -273,7 +368,8 @@
         </div>
     </section>
 
-    <!-- Social Proof / CTA Section --><section id="cta-form" class="py-20 md:py-28 px-6 bg-gradient-to-t from-[#070912] via-[#070912] to-teal-900/40">
+    <!-- CTA Form Section -->
+    <section id="cta-form" class="py-20 md:py-28 px-6 bg-gradient-to-t from-[#070912] via-[#070912] to-teal-900/40">
         <div class="container mx-auto max-w-xl text-center">
             
             <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-6">
@@ -283,25 +379,31 @@
                 Join the waitlist and be the first to experience Layerlift.
             </p>
             
-            <!-- Email Capture Form --><div id="form-container" class="max-w-lg mx-auto text-left">
+            <!-- Form Container -->
+            <div id="form-container" class="max-w-lg mx-auto text-left">
                 
-                <!-- "Thank You" Message --><div id="form-success-message" class="hidden text-center glass-card border-teal-500 p-10">
+                <!-- Success Message -->
+                <div id="form-success-message" class="hidden text-center glass-card border-teal-500 p-10">
                     <svg class="w-16 h-16 text-teal-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <h3 class="text-2xl font-bold text-white mb-2">Thank You!</h3>
                     <p class="text-slate-300">You're on the list. We'll be in touch soon.</p>
                 </div>
 
-                <!-- Error Message --><div id="form-error-message" class="hidden text-center glass-card border-red-500 p-10">
+                <!-- Error Message -->
+                <div id="form-error-message" class="hidden text-center glass-card border-red-500 p-10">
                     <h3 class="text-2xl font-bold text-white mb-2">Oops!</h3>
                     <p class="text-slate-300">Something went wrong. Please try again later.</p>
                 </div>
 
-                <!-- The Form --><form 
+                <!-- The Form -->
+                <form 
                     id="early-access-form"
-                    action="YOUR_GETFORM_ENDPOINT_URL" <!--- !!! IMPORTANT: REPLACE THIS !!! --->method="POST"
+                    action="https://getform.io/f/bnlngdqb" 
+                    method="POST"
                     class="flex flex-col gap-4"
                 >
-                    <!-- Email Field --><div>
+                    <!-- Email Field -->
+                    <div>
                         <label for="email" class="block text-sm font-medium text-slate-300 mb-2">Email Address*</label>
                         <input 
                             type="email" 
@@ -310,26 +412,42 @@
                             placeholder="you@company.com" 
                             class="form-input"
                             required
+                            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                         >
                     </div>
                 
-                    <!-- Contact Number Field --><div>
-                        <label for="phone" class="block text-sm font-medium text-slate-300 mb-2">Contact Number</label>
-                        <input
-                            type="tel" 
-                            name="phone"
-                            id="phone"
-                            placeholder="+1 (555) 123-4567" 
-                            class="form-input"
-                        >
+                    <!-- Phone Field (Country Code + Number) -->
+                    <div>
+                        <label for="country_code" class="block text-sm font-medium text-slate-300 mb-2">Contact Number</label>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <!-- Country Code Dropdown -->
+                            <select 
+                                name="country_code" 
+                                id="country_code" 
+                                class="sm:w-2/5"
+                            >
+                                <option value="">Loading countries...</option>
+                            </select>
+                            <!-- Phone Number Input -->
+                            <input
+                                type="tel" 
+                                id="phone_number"
+                                placeholder="555 123 4567" 
+                                class="form-input sm:w-3/5"
+                                pattern="[0-9\s\-()]+"
+                            >
+                        </div>
+                        <!-- Hidden field to combine code and number -->
+                        <input type="hidden" name="phone" id="phone_full">
                     </div>
 
-                    <!-- Use Case Field --><div>
+                    <!-- Use Case Field -->
+                    <div>
                         <label for="use_case" class="block text-sm font-medium text-slate-300 mb-2">Primary Use Case*</label>
                         <select 
                             name="use_case" 
                             id="use_case" 
-                            class="form-input appearance-none" 
+                            class="form-select" 
                             required
                         >
                             <option value="" disabled selected>Select an option...</option>
@@ -339,8 +457,9 @@
                         </select>
                     </div>
 
-                    <!-- Conditional: Company Name --><div id="company_field" class="conditional-field">
-                        <label for="company_name" class="block text-sm font-medium text-slate-300 mb-2">Company Name*</Llabel>
+                    <!-- Conditional Company Field -->
+                    <div id="company_field" class="conditional-field">
+                        <label for="company_name" class="block text-sm font-medium text-slate-300 mb-2">Company Name*</label>
                         <input 
                             type="text" 
                             name="company_name"
@@ -350,7 +469,8 @@
                         >
                     </div>
 
-                    <!-- Conditional: Other Specify --><div id="other_field" class="conditional-field">
+                    <!-- Conditional Other Field -->
+                    <div id="other_field" class="conditional-field">
                         <label for="other_specify" class="block text-sm font-medium text-slate-300 mb-2">Please Specify*</label>
                         <input 
                             type="text" 
@@ -361,108 +481,395 @@
                         >
                     </div>
                         
-                    <!-- Submit Button --><button 
+                    <!-- Submit Button -->
+                    <button 
                         id="submit-button"
                         type="submit" 
-                        class="bg-teal-400 text-slate-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-teal-300 transition-all transform hover:scale-105 shadow-lg whitespace-nowrap mt-4"
+                        class="bg-teal-400 text-slate-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-teal-300 transition-all transform hover:scale-105 shadow-lg whitespace-noww-full mt-4"
                     >
                         Get Early Access
                     </button>
                 </form>
             </div>
             
-            <!-- Spam disclaimer --><p class="text-sm text-slate-400 mt-5">No spam, just early access and updates.</p>
+            <p class="text-sm text-slate-400 mt-5">No spam, just early access and updates.</p>
         </div>
     </section>
 
-    <!-- Footer --><footer class="text-center py-10 border-t border-slate-700/50">
+    <!-- Footer -->
+    <footer class="text-center py-10 border-t border-slate-700/50">
         <p class="text-slate-500">&copy; 2025 Layerlift. All rights reserved.</p>
     </footer>
 
-    <!-- JavaScript for Form Logic --><script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // --- Conditional Field Logic ---
-            const useCaseSelect = document.getElementById('use_case');
-            const companyField = document.getElementById('company_field');
-            const otherField = document.getElementById('other_field');
-            const companyInput = document.getElementById('company_name');
-            const otherInput = document.getElementById('other_specify');
+    <!-- Choices.js JS -->
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
-            function toggleFields() {
-                const selectedValue = useCaseSelect.value;
-                hideField(companyField, companyInput);
-                hideField(otherField, otherInput);
-                if (selectedValue === 'work') {
-                    showField(companyField, companyInput);
-                } else if (selectedValue === 'other') {
-                    showField(otherField, otherInput);
+    <!-- Main JavaScript -->
+    <script>
+        // --- Country Code Data ---
+        const countryCodes = [
+            { value: '+1', label: '🇺🇸 +1 (USA)' },
+            { value: '+91', label: '🇮🇳 +91 (India)' },
+            { value: '+44', label: '🇬🇧 +44 (UK)' },
+            { value: '+61', label: '🇦🇺 +61 (Australia)' },
+            { value: '+86', label: '🇨🇳 +86 (China)' },
+            { value: '+49', label: '🇩🇪 +49 (Germany)' },
+            { value: '+33', label: '🇫🇷 +33 (France)' },
+            { value: '+81', label: '🇯🇵 +81 (Japan)' },
+            { value: '+55', label: '🇧🇷 +55 (Brazil)' },
+            { value: '+7', label: '🇷🇺 +7 (Russia)' },
+            { value: '+20', label: '🇪🇬 +20 (Egypt)' },
+            { value: '+27', label: '🇿🇦 +27 (South Africa)' },
+            { value: '+30', label: '🇬🇷 +30 (Greece)' },
+            { value: '+31', label: '🇳🇱 +31 (Netherlands)' },
+            { value: '+32', label: '🇧🇪 +32 (Belgium)' },
+            { value: '+34', label: '🇪🇸 +34 (Spain)' },
+            { value: '+36', label: '🇭🇺 +36 (Hungary)' },
+            { value: '+39', label: '🇮🇹 +39 (Italy)' },
+            { value: '+40', label: '🇷🇴 +40 (Romania)' },
+            { value: '+41', label: '🇨🇭 +41 (Switzerland)' },
+            { value: '+43', label: '🇦🇹 +43 (Austria)' },
+            { value: '+45', label: '🇩🇰 +45 (Denmark)' },
+            { value: '+46', label: '🇸🇪 +46 (Sweden)' },
+            { value: '+47', label: '🇳🇴 +47 (Norway)' },
+            { value: '+48', label: '🇵🇱 +48 (Poland)' },
+            { value: '+51', label: '🇵🇪 +51 (Peru)' },
+            { value: '+52', label: '🇲🇽 +52 (Mexico)' },
+            { value: '+53', label: '🇨🇺 +53 (Cuba)' },
+            { value: '+54', label: '🇦🇷 +54 (Argentina)' },
+            { value: '+56', label: '🇨🇱 +56 (Chile)' },
+            { value: '+57', label: '🇨🇴 +57 (Colombia)' },
+            { value: '+58', label: '🇻🇪 +58 (Venezuela)' },
+            { value: '+60', label: '🇲🇾 +60 (Malaysia)' },
+            { value: '+62', label: '🇮🇩 +62 (Indonesia)' },
+            { value: '+63', label: '🇵🇭 +63 (Philippines)' },
+            { value: '+64', label: '🇳🇿 +64 (New Zealand)' },
+            { value: '+65', label: '🇸🇬 +65 (Singapore)' },
+            { value: '+66', label: '🇹🇭 +66 (Thailand)' },
+            { value: '+82', label: '🇰🇷 +82 (South Korea)' },
+            { value: '+84', label: '🇻🇳 +84 (Vietnam)' },
+            { value: '+90', label: '🇹🇷 +90 (Turkey)' },
+            { value: '+92', label: '🇵🇰 +92 (Pakistan)' },
+            { value: '+93', label: '🇦🇫 +93 (Afghanistan)' },
+            { value: '+94', label: '🇱🇰 +94 (Sri Lanka)' },
+            { value: '+95', label: '🇲🇲 +95 (Myanmar)' },
+            { value: '+98', label: '🇮🇷 +98 (Iran)' },
+            { value: '+212', label: '🇲🇦 +212 (Morocco)' },
+            { value: '+213', label: '🇩🇿 +213 (Algeria)' },
+            { value: '+216', label: '🇹🇳 +216 (Tunisia)' },
+            { value: '+218', label: '🇱🇾 +218 (Libya)' },
+            { value: '+220', label: '🇬🇲 +220 (Gambia)' },
+            { value: '+221', label: '🇸🇳 +221 (Senegal)' },
+            { value: '+222', label: '🇲🇷 +222 (Mauritania)' },
+            { value: '+223', label: '🇲🇱 +223 (Mali)' },
+            { value: '+224', label: '🇬🇳 +224 (Guinea)' },
+            { value: '+225', label: '🇨🇮 +225 (Ivory Coast)' },
+            { value: '+226', label: '🇧🇫 +226 (Burkina Faso)' },
+            { value: '+227', label: '🇳🇪 +227 (Niger)' },
+            { value: '+228', label: '🇹🇬 +228 (Togo)' },
+            { value: '+229', label: '🇧🇯 +229 (Benin)' },
+            { value: '+230', label: '🇲🇺 +230 (Mauritius)' },
+            { value: '+231', label: '🇱🇷 +231 (Liberia)' },
+            { value: '+232', label: '🇸🇱 +232 (Sierra Leone)' },
+            { value: '+233', label: '🇬🇭 +233 (Ghana)' },
+            { value: '+234', label: '🇳🇬 +234 (Nigeria)' },
+            { value: '+235', label: '🇹🇩 +235 (Chad)' },
+            { value: '+236', label: '🇨🇫 +236 (Central African Republic)' },
+            { value: '+237', label: '🇨🇲 +237 (Cameroon)' },
+            { value: '+238', label: '🇨🇻 +238 (Cape Verde)' },
+            { value: '+239', label: '🇸🇹 +239 (Sao Tome and Principe)' },
+            { value: '+240', label: '🇬🇶 +240 (Equatorial Guinea)' },
+            { value: '+241', label: '🇬🇦 +241 (Gabon)' },
+            { value: '+242', label: '🇨🇬 +242 (Congo - Brazzaville)' },
+            { value: '+243', label: '🇨🇩 +243 (Congo - Kinshasa)' },
+            { value: '+244', label: '🇦🇴 +244 (Angola)' },
+            { value: '+245', label: '🇬🇼 +245 (Guinea-Bissau)' },
+            { value: '+246', label: '🇮🇴 +246 (British Indian Ocean Territory)' },
+            { value: '+248', label: '🇸🇨 +248 (Seychelles)' },
+            { value: '+249', label: '🇸🇩 +249 (Sudan)' },
+            { value: '+250', label: '🇷🇼 +250 (Rwanda)' },
+            { value: '+251', label: '🇪🇹 +251 (Ethiopia)' },
+            { value: '+252', label: '🇸🇴 +252 (Somalia)' },
+            { value: '+253', label: '🇩🇯 +253 (Djibouti)' },
+            { value: '+254', label: '🇰🇪 +254 (Kenya)' },
+            { value: '+255', label: '🇹🇿 +255 (Tanzania)' },
+            { value: '+256', label: '🇺🇬 +256 (Uganda)' },
+            { value: '+257', label: '🇧🇮 +257 (Burundi)' },
+            { value: '+258', label: '🇲🇿 +258 (Mozambique)' },
+            { value: '+260', label: '🇿🇲 +260 (Zambia)' },
+            { value: '+261', label: '🇲🇬 +261 (Madagascar)' },
+            { value: '+262', label: '🇷🇪 +262 (Réunion)' },
+            { value: '+263', label: '🇿🇼 +263 (Zimbabwe)' },
+            { value: '+264', label: '🇳🇦 +264 (Namibia)' },
+            { value: '+265', label: '🇲🇼 +265 (Malawi)' },
+            { value: '+266', label: '🇱🇸 +266 (Lesotho)' },
+            { value: '+267', label: '🇧🇼 +267 (Botswana)' },
+            { value: '+268', label: '🇸🇿 +268 (Eswatini)' },
+            { value: '+269', label: '🇰🇲 +269 (Comoros)' },
+            { value: '+290', label: '🇸🇭 +290 (Saint Helena)' },
+            { value: '+291', label: '🇪🇷 +291 (Eritrea)' },
+            { value: '+297', label: '🇦🇼 +297 (Aruba)' },
+            { value: '+298', label: '🇫🇴 +298 (Faroe Islands)' },
+            { value: '+299', label: '🇬🇱 +299 (Greenland)' },
+            { value: '+350', label: '🇬🇮 +350 (Gibraltar)' },
+            { value: '+351', label: '🇵🇹 +351 (Portugal)' },
+            { value: '+352', label: '🇱🇺 +352 (Luxembourg)' },
+            { value: '+353', label: '🇮🇪 +353 (Ireland)' },
+            { value: '+354', label: '🇮🇸 +354 (Iceland)' },
+            { value: '+355', label: '🇦🇱 +355 (Albania)' },
+            { value: '+356', label: '🇲🇹 +356 (Malta)' },
+            { value: '+357', label: '🇨🇾 +357 (Cyprus)' },
+            { value: '+358', label: '🇫🇮 +358 (Finland)' },
+            { value: '+359', label: '🇧🇬 +359 (Bulgaria)' },
+            { value: '+370', label: '🇱🇹 +370 (Lithuania)' },
+            { value: '+371', label: '🇱🇻 +371 (Latvia)' },
+            { value: '+372', label: '🇪🇪 +372 (Estonia)' },
+            { value: '+373', label: '🇲🇩 +373 (Moldova)' },
+            { value: '+374', label: '🇦🇲 +374 (Armenia)' },
+            { value: '+375', label: '🇧🇾 +375 (Belarus)' },
+            { value: '+376', label: '🇦🇩 +376 (Andorra)' },
+            { value: '+377', label: '🇲🇨 +377 (Monaco)' },
+            { value: '+378', label: '🇸🇲 +378 (San Marino)' },
+            { value: '+379', label: '🇻🇦 +379 (Vatican City)' },
+            { value: '+380', label: '🇺🇦 +380 (Ukraine)' },
+            { value: '+381', label: '🇷🇸 +381 (Serbia)' },
+            { value: '+382', label: '🇲🇪 +382 (Montenegro)' },
+            { value: '+383', label: '🇽🇰 +383 (Kosovo)' },
+            { value: '+385', label: '🇭🇷 +385 (Croatia)' },
+            { value: '+386', label: '🇸🇮 +386 (Slovenia)' },
+            { value: '+387', label: '🇧🇦 +387 (Bosnia and Herzegovina)' },
+            { value: '+389', label: '🇲🇰 +389 (North Macedonia)' },
+            { value: '+420', label: '🇨🇿 +420 (Czechia)' },
+            { value: '+421', label: '🇸🇰 +421 (Slovakia)' },
+            { value: '+423', label: '🇱🇮 +423 (Liechtenstein)' },
+            { value: '+500', label: '🇫🇰 +500 (Falkland Islands)' },
+            { value: '+501', label: '🇧🇿 +501 (Belize)' },
+            { value: '+502', label: '🇬🇹 +502 (Guatemala)' },
+            { value: '+503', label: '🇸🇻 +503 (El Salvador)' },
+            { value: '+504', label: '🇭🇳 +504 (Honduras)' },
+            { value: '+505', label: '🇳🇮 +505 (Nicaragua)' },
+            { value: '+506', label: '🇨🇷 +506 (Costa Rica)' },
+            { value: '+507', label: '🇵🇦 +507 (Panama)' },
+            { value: '+508', label: '🇵🇲 +508 (Saint Pierre and Miquelon)' },
+            { value: '+509', label: '🇭🇹 +509 (Haiti)' },
+            { value: '+590', label: '🇬🇵 +590 (Guadeloupe)' },
+            { value: '+591', label: '🇧🇴 +591 (Bolivia)' },
+            { value: '+592', label: '🇬🇾 +592 (Guyana)' },
+            { value: '+593', label: '🇪🇨 +593 (Ecuador)' },
+            { value: '+594', label: '🇬🇫 +594 (French Guiana)' },
+            { value: '+595', label: '🇵🇾 +595 (Paraguay)' },
+            { value: '+596', label: '🇲🇶 +596 (Martinique)' },
+            { value: '+597', label: '🇸🇷 +597 (Suriname)' },
+            { value: '+598', label: '🇺🇾 +598 (Uruguay)' },
+            { value: '+599', label: '🇧🇶 +599 (Caribbean Netherlands)' },
+            { value: '+670', label: '🇹🇱 +670 (Timor-Leste)' },
+            { value: '+672', label: '🇳🇫 +672 (Norfolk Island)' },
+            { value: '+673', label: '🇧🇳 +673 (Brunei)' },
+            { value: '+674', label: '🇳🇷 +674 (Nauru)' },
+            { value: '+675', label: '🇵🇬 +675 (Papua New Guinea)' },
+            { value: '+676', label: '🇹🇴 +676 (Tonga)' },
+            { value: '+677', label: '🇸🇧 +677 (Solomon Islands)' },
+            { value: '+678', label: '🇻🇺 +678 (Vanuatu)' },
+            { value: '+679', label: '🇫🇯 +679 (Fiji)' },
+            { value: '+680', label: '🇵🇼 +680 (Palau)' },
+            { value: '+681', label: '🇼🇫 +681 (Wallis and Futuna)' },
+            { value: '+682', label: '🇨🇰 +682 (Cook Islands)' },
+            { value: '+683', label: '🇳🇺 +683 (Niue)' },
+            { value: '+685', label: '🇼🇸 +685 (Samoa)' },
+            { value: '+686', label: '🇰🇮 +686 (Kiribati)' },
+            { value: '+687', label: '🇳🇨 +687 (New Caledonia)' },
+            { value: '+688', label: '🇹🇻 +688 (Tuvalu)' },
+            { value: '+689', label: '🇵🇫 +689 (French Polynesia)' },
+            { value: '+690', label: '🇹🇰 +690 (Tokelau)' },
+            { value: '+691', label: '🇫🇲 +691 (Micronesia)' },
+            { value: '+692', label: '🇲🇭 +692 (Marshall Islands)' },
+            { value: '+850', label: '🇰🇵 +850 (North Korea)' },
+            { value: '+852', label: '🇭🇰 +852 (Hong Kong)' },
+            { value: '+853', label: '🇲🇴 +853 (Macao)' },
+            { value: '+855', label: '🇰🇭 +855 (Cambodia)' },
+            { value: '+856', label: '🇱🇦 +856 (Laos)' },
+            { value: '+880', label: '🇧🇩 +880 (Bangladesh)' },
+            { value: '+886', label: '🇹🇼 +886 (Taiwan)' },
+            { value: '+960', label: '🇲🇻 +960 (Maldives)' },
+            { value: '+961', label: '🇱🇧 +961 (Lebanon)' },
+            { value: '+962', label: '🇯🇴 +962 (Jordan)' },
+            { value: '+963', label: '🇸🇾 +963 (Syria)' },
+            { value: '+964', label: '🇮🇶 +964 (Iraq)' },
+            { value: '+965', label: '🇰🇼 +965 (Kuwait)' },
+            { value: '+966', label: '🇸🇦 +966 (Saudi Arabia)' },
+            { value: '+967', label: '🇾🇪 +967 (Yemen)' },
+            { value: '+968', label: '🇴🇲 +968 (Oman)' },
+            { value: '+970', label: '🇵🇸 +970 (Palestine)' },
+            { value: '+971', label: '🇦🇪 +971 (United Arab Emirates)' },
+            { value: '+972', label: '🇮🇱 +972 (Israel)' },
+            { value: '+973', label: '🇧🇭 +973 (Bahrain)' },
+            { value: '+974', label: '🇶🇦 +974 (Qatar)' },
+            { value: '+975', label: '🇧🇹 +975 (Bhutan)' },
+            { value: '+976', label: '🇲🇳 +976 (Mongolia)' },
+            { value: '+977', label: '🇳🇵 +977 (Nepal)' },
+            { value: '+992', label: '🇹🇯 +992 (Tajikistan)' },
+            { value: '+993', label: '🇹🇲 +993 (Turkmenistan)' },
+            { value: '+994', label: '🇦🇿 +994 (Azerbaijan)' },
+            { value: '+995', label: '🇬🇪 +995 (Georgia)' },
+            { value: '+996', label: '🇰🇬 +996 (Kyrgyzstan)' },
+            { value: '+998', label: '🇺🇿 +998 (Uzbekistan)' },
+            { value: '+1242', label: '🇧🇸 +1-242 (Bahamas)' },
+            { value: '+1246', label: '🇧🇧 +1-246 (Barbados)' },
+            { value: '+1264', label: '🇦🇮 +1-264 (Anguilla)' },
+            { value: '+1268', label: '🇦🇬 +1-268 (Antigua and Barbuda)' },
+            { value: '+1284', label: '🇻🇬 +1-284 (British Virgin Islands)' },
+            { value: '+1340', label: '🇻🇮 +1-340 (U.S. Virgin Islands)' },
+            { value: '+1345', label: '🇰🇾 +1-345 (Cayman Islands)' },
+            { value: '+1441', label: '🇧🇲 +1-441 (Bermuda)' },
+            { value: '+1473', label: '🇬🇩 +1-473 (Grenada)' },
+            { value: '+1649', label: '🇹🇨 +1-649 (Turks and Caicos Islands)' },
+            { value: '+1664', label: '🇲🇸 +1-664 (Montserrat)' },
+            { value: '+1670', label: '🇲🇵 +1-670 (Northern Mariana Islands)' },
+            { value: '+1671', label: '🇬🇺 +1-671 (Guam)' },
+            { value: '+1684', label: '🇦🇸 +1-684 (American Samoa)' },
+            { value: '+1758', label: '🇱🇨 +1-758 (Saint Lucia)' },
+            { value: '+1767', label: '🇩🇲 +1-767 (Dominica)' },
+            { value: '+1784', label: '🇻🇨 +1-784 (Saint Vincent and the Grenadines)' },
+            { value: '+1809', label: '🇩🇴 +1-809 (Dominican Republic)' },
+            { value: '+1829', label: '🇩🇴 +1-829 (Dominican Republic)' },
+            { value: '+1849', label: '🇩🇴 +1-849 (Dominican Republic)' },
+            { value: '+1868', label: '🇹🇹 +1-868 (Trinidad and Tobago)' },
+            { value: '+1869', label: '🇰🇳 +1-869 (Saint Kitts and Nevis)' },
+            { value: '+1876', label: '🇯🇲 +1-876 (Jamaica)' }
+        ];
+
+        // --- Initialize Choices.js for Country Code ---
+        const countryCodeElement = document.getElementById('country_code');
+        const choices = new Choices(countryCodeElement, {
+            searchEnabled: true,
+            shouldSort: false, // Keep the order I defined
+            itemSelectText: 'Select',
+            searchPlaceholderValue: 'Search by country or code...',
+            classNames: {
+                containerOuter: 'choices',
+                containerInner: 'choices__inner',
+                input: 'choices__input',
+                list: 'choices__list',
+                listSingle: 'choices__list--single',
+                listDropdown: 'choices__list--dropdown',
+                item: 'choices__item',
+                itemSelectable: 'choices__item--selectable',
+                itemDisabled: 'choices__item--disabled',
+                itemChoice: 'choices__item--choice',
+            },
+        });
+
+        // --- Load Country Codes Asynchronously ---
+        choices.setChoices(countryCodes, 'value', 'label', true);
+        choices.setChoiceByValue('+1');
+
+
+        // --- Conditional Field Logic ---
+        const useCaseSelect = document.getElementById('use_case');
+        const companyField = document.getElementById('company_field');
+        const otherField = document.getElementById('other_field');
+        const companyInput = document.getElementById('company_name');
+        const otherInput = document.getElementById('other_specify');
+
+        function toggleFields() {
+            const selectedValue = useCaseSelect.value;
+            hideField(companyField, companyInput);
+            hideField(otherField, otherInput);
+            if (selectedValue === 'work') {
+                showField(companyField, companyInput);
+            } else if (selectedValue === 'other') {
+                showField(otherField, otherInput);
+            }
+        }
+
+        function showField(wrapper, input) {
+            wrapper.style.display = 'block';
+            setTimeout(() => {
+                wrapper.style.maxHeight = '100px';
+                wrapper.style.opacity = '1';
+            }, 10);
+            input.setAttribute('required', 'required');
+        }
+
+        function hideField(wrapper, input) {
+            wrapper.style.maxHeight = '0';
+            wrapper.style.opacity = '0';
+            setTimeout(()_ => { 
+                if (wrapper.style.opacity === '0') {
+                    wrapper.style.display = 'none';
                 }
+            }, 300);
+            input.removeAttribute('required');
+        }
+        useCaseSelect.addEventListener('change', toggleFields);
+
+        // --- Phone Number Input Cleaning ---
+        const phoneInput = document.getElementById('phone_number');
+        phoneInput.addEventListener('input', function(e) {
+            // Remove non-numeric characters, but allow for spaces/dashes/parentheses
+            let value = e.target.value;
+            e.target.value = value.replace(/[^0-9\s\-()]/g, '');
+        });
+
+
+        // --- Form Submission Logic ---
+        const form = document.getElementById('early-access-form');
+        const successMessage = document.getElementById('form-success-message');
+        const errorMessage = document.getElementById('form-error-message');
+        const submitButton = document.getElementById('submit-button');
+        const phoneNumberInput = document.getElementById('phone_number');
+        const fullPhoneInput = document.getElementById('phone_full');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Get the value from Choices.js instance
+            const selectedCountryCode = choices.getValue(true);
+            
+            // Combine country code and phone number
+            const cleanPhoneNumber = phoneNumberInput.value.replace(/[^0-9]/g, '');
+            if (cleanPhoneNumber && selectedCountryCode) {
+                fullPhoneInput.value = selectedCountryCode + cleanPhoneNumber;
+            } else {
+                fullPhoneInput.value = ''; // Clear if no phone number
             }
 
-            function showField(wrapper, input) {
-                wrapper.style.display = 'block';
-                setTimeout(() => {
-                    wrapper.style.maxHeight = '100px';
-                    wrapper.style.opacity = '1';
-                }, 10);
-                input.setAttribute('required', 'required');
+            const formData = new FormData(form);
+            const action = form.getAttribute('action');
+
+            // Safety check for placeholder URL
+            if (action.includes('YOUR_GETFORM_ENDPOINT_URL')) {
+                alert('Form Error: Please configure the form endpoint URL in the HTML.');
+                return;
             }
 
-            function hideField(wrapper, input) {
-                wrapper.style.maxHeight = '0';
-                wrapper.style.opacity = '0';
-                setTimeout(() => {
-                    if (wrapper.style.opacity === '0') {
-                        wrapper.style.display = 'none';
-                    }
-                }, 300);
-                input.removeAttribute('required');
-            }
-            useCaseSelect.addEventListener('change', toggleFields);
+            submitButton.disabled = true;
+            submitButton.textContent = 'Submitting...';
 
-            // --- Form Submission Logic ---
-            const form = document.getElementById('early-access-form');
-            const successMessage = document.getElementById('form-success-message');
-            const errorMessage = document.getElementById('form-error-message');
-            const submitButton = document.getElementById('submit-button');
-
-            form.addEventListener('submit', function(event) {
-                event.preventDefault();
-                const formData = new FormData(form);
-                const action = form.getAttribute('action');
-
-                // Check for placeholder URL
-                if (action.includes('https://getform.io/f/bnlngdqb')) {
-                    alert('Form Error: Please configure the form endpoint URL in the HTML.');
-                    return;
-                }
-
-                submitButton.disabled = true;
-                submitButton.textContent = 'Submitting...';
-
-                fetch(action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'Accept': 'application/json' }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        form.style.display = 'none';
-                        successMessage.style.display = 'block';
-                    } else {
-                        throw new Error('Form submission failed');
-                    }
-                })
-                .catch(error => {
+            fetch(action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(response => {
+                if (response.ok) {
                     form.style.display = 'none';
-                    errorMessage.style.display = 'block';
-                    console.error('Form Error:', error);
-                });
+                    successMessage.style.display = 'block';
+                } else {
+                    throw new Error('Form submission failed');
+                }
+            })
+            .catch(error => {
+                form.style.display = 'none';
+                errorMessage.style.display = 'block';
+                console.error('Form Error:', error);
+            })
+            .finally(() => {
+                // Re-enable button in case of error and user wants to retry
+                // We don't do it here because the form is hidden
             });
         });
     </script>
 
 </body>
 </html>
-
-
